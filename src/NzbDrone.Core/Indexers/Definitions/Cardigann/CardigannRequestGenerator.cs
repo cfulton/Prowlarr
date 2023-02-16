@@ -1010,7 +1010,16 @@ namespace NzbDrone.Core.Indexers.Cardigann
             }
 
             variables[".Query.Keywords"] = string.Join(" ", keywordTokens);
-            variables[".Keywords"] = ApplyFilters((string)variables[".Query.Keywords"], search.Keywordsfilters, variables);
+            variables[".Keywords"] =  ApplyFilters((string)variables[".Query.Keywords"], search.Keywordsfilters, variables);
+
+            if (!string.IsNullOrWhiteSpace((string)variables[".Query.Offset"]) &&
+                !string.IsNullOrWhiteSpace((string)variables[".Query.Limit"]))
+            {
+                // Get index of requested page range and add 1 for the page number
+                var possiblePageIndex = Convert.ToInt32(variables[".Query.Offset"]) / Convert.ToInt32(variables[".Query.Limit"]);
+                var pageNumber = possiblePageIndex + 1;
+                variables[".Query.Page"] = pageNumber.ToString();
+            }
 
             // TODO: prepare queries first and then send them parallel
             var searchPaths = search.Paths;
